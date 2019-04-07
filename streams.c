@@ -100,6 +100,8 @@ backup_t backup_stream(char_stream_t *s){
 
 res_t recover_stream(char_stream_t *s, backup_t bk){
   s->position = bk;
+  expect(valid_position(s));
+  return TRUE;
 }
 
 res_t skip_spaces(char_stream_t *_s){
@@ -145,5 +147,42 @@ res_t bounded_get_inplace(char_stream_t *s, char_stream_t *output, char_stream_t
 
 res_t nullterminate(char_stream_t *s){
   s->buffer[s->size] = 0;
+  return TRUE;
+}
+res_t char_at(char_stream_t *s, long int index, char *result){
+  backup_t bk = backup_stream(s);
+  if(index >= 0){
+    s->position = index;
+  }else{
+    index += s->size;
+    s->position = index;
+  }
+  res_t get_c_res = get_char(s, result);
+  recover_stream(s,bk);
+  return get_c_res;
+}
+
+res_t trim_end_spaces(char_stream_t *s){
+  char c;
+  expect(char_at(s, -1, &c));
+  while(isspace(c)){
+    s->size-=1;
+    expect(char_at(s, -1, &c));
+  }
+  return TRUE;
+}
+
+bool_t equal_streams(char_stream_t *f, char_stream_t *s){
+  char c_f, c_s;
+  expect(f);
+  expect(s);
+  expect(f->size == s->size);
+  unsigned long i = 0;
+  while(i < f->size){
+    expect(char_at(f,i,&c_f));
+    expect(char_at(s,i,&c_s));
+    expect(c_f == c_s);
+    i++;
+  }
   return TRUE;
 }
