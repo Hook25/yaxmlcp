@@ -1,12 +1,5 @@
 #include "xml.h"
 
-typedef enum token_type_token {
-  value,
-  tag,
-  comment, 
-  header
-} token_type_t;
-
 res_t skip_header(char_stream_t *s){
   char from[2] = "<?";
   char to[2] = "?>";
@@ -23,20 +16,28 @@ bool_t is_header(char_stream_t s){
   expect(build_from_buffer(&header_stream, start_of_header, 2)); 
   return is_sequence(&s, &header_stream, TRUE);
 }
-
-res_t get_tag_inplace(char_stream_t *s, char_stream_t *output){
+//TODO: fix self conclusive ending /
+res_t get_tag_inplace(char_stream_t *s, char_stream_t *output, tag_type_t *tag_type){
   char start_of_tag[2] = "<";
   char start_of_close_tag[3] = "</";
   char end_of_tag[2] = ">";
   char_stream_t sot_stream; //decide start of start_close
   char_stream_t eot_stream;
+  char c;
   if(is_close_tag(s)){
     build_from_buffer(&sot_stream, start_of_close_tag, 2);
+    *tag_type = close; 
   }else{
     build_from_buffer(&sot_stream, start_of_tag, 1);
+    *tag_type = open;
   }
   build_from_buffer(&eot_stream, end_of_tag, 1);
   expect(bounded_get_inplace(s, output, sot_stream, eot_stream));
+  expect(trim_end_spaces(s));
+  expect(char_at(s,-1,&c));
+  if(c == '/'){
+    *tag_type = self_conclusive;
+  }
   return TRUE;
 }
 
@@ -72,12 +73,29 @@ bool_t is_close_tag(char_stream_t *s){
   return TRUE; 
 }
 
-res_t is_tag_in_tree(xml_tree_t *tree, char_stream_t *s){
-
+bool_t is_tag_node(xml_tree_t *t){
+  return t->tag_name != FALSE;
 }
 
 res_t parse_xml_into_tree(xml_tree_t *tree, char_stream_t *s){
-  if(is_open_tag(s)){
-
+  char_stream_t tag_or_value;
+  tag_type_t t = none;
+  backup_t bk = backup_stream(s);
+  bool_t ok = TRUE;
+  if(is_tag_node(tree)){
+    ok &= get_tag_inplace(s,&tag_or_value, &t);
+    if(t != self_conclusive){
+      if(equal_streams(tree->tag_name, &tag_or_value)){ //they are the same, we gucci
+        unsigned int i;
+        for(i = 0; i<tree->children_count;){
+          if(parse_xml_into_tree(tree->children + i, s)){
+            i = 0;
+          }else{
+            i++;
+          }
+        }
+      }
+    }
   }
+  return TRUE;
 }

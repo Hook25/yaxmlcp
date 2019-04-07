@@ -21,8 +21,10 @@ res_t test_get_tag(){
     char *c = "<abcd>";
     char_stream_t s;
     char_stream_t o_stream;
-    expect(build_from_buffer(&s, c, 7));
-    expect(get_tag_inplace(&s, &o_stream));
+    tag_type_t tt;
+    expect(build_from_buffer(&s, c, 6));
+    expect(get_tag_inplace(&s, &o_stream, &tt));
+    expect(tt == open);
     return TRUE;
 }
 
@@ -55,10 +57,13 @@ res_t test_parse_open_val_close(){
     char_stream_t tag_s;
     char_stream_t value_s;
     char_stream_t tag_c_s;
+    tag_type_t tt;
     expect(build_from_buffer(&s, c, 13));
-    expect(get_tag_inplace(&s, &tag_s));
+    expect(get_tag_inplace(&s, &tag_s, &tt));
+    expect(tt == open);
     expect(get_value_inplace(&s, &value_s));
-    expect(get_tag_inplace(&s, &tag_c_s));
+    expect(get_tag_inplace(&s, &tag_c_s, &tt));
+    expect(tt == close);
     nullterminate(&tag_s);
     nullterminate(&value_s);
     nullterminate(&tag_c_s);
@@ -66,6 +71,16 @@ res_t test_parse_open_val_close(){
     expect(strcmp("prova", value_s.buffer) == 0);
     expect(strcmp("a", tag_c_s.buffer) == 0);
     free(c);
+    return TRUE;
+}
+
+res_t test_equal_streams(){
+    char *tmp = "Lorem";
+    char_stream_t s;
+    char_stream_t f;
+    build_from_buffer(&s,tmp,5);
+    build_from_buffer(&f,tmp,5);
+    expect(equal_streams(&f,&s));
     return TRUE;
 }
 
@@ -89,6 +104,10 @@ int main(){
     res_t o_v_c_result = test_parse_open_val_close();
     if(!o_v_c_result){
         printf("Failed open value close\n");
+    }
+    res_t equal_streams_result = test_equal_streams();
+    if(!equal_streams_result){
+        printf("Failed equal streams");
     }
     return 0;
 }
