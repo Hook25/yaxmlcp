@@ -90,11 +90,12 @@ res_t test_parse_xml(){
     char_stream_t root_tag_stream;
     char_stream_t output;
     char_stream_t s;
-    char *buffer = strdup("<a>123</a>");
+    char buffer[11];
+    strcpy(buffer, "<a>123</a>");
     char *expected_result = "123";
     char *a = (char*)"a";
     expect(cs_build_from_buffer(&root_tag_stream, a, 1));
-    expect(cs_build_from_buffer(&s, buffer, 10));
+    expect(cs_build_from_buffer(&s, buffer, 11));
     root_tag.tag_name = &root_tag_stream;
     root_tag.children_count = 1;
     output_tree.tag_value = &output;
@@ -102,7 +103,6 @@ res_t test_parse_xml(){
     expect(xt_parse_xml_into_tree(&root_tag, &s));
     cs_nullterminate(&output);
     expect(strcmp(output.buffer, expected_result) == 0);
-    free(buffer);
     return TRUE;
 }
 

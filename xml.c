@@ -90,6 +90,7 @@ res_t xt_work_with_tag(xml_tree_t *t, char_stream_t *s){
   bool_t one_ok = FALSE;
   bool_t ordered;
   expect(xs_get_tag_inplace(s, &tmp, &tag_type));
+  expect(tag_type == open);
   expect(cs_equal_streams(t->tag_name, &tmp));
   //we found the correct tag
   do{
@@ -102,6 +103,9 @@ res_t xt_work_with_tag(xml_tree_t *t, char_stream_t *s){
       }
     }
   }while(has_to_reset && one_ok);
+  expect(xs_get_tag_inplace(s,&tmp, &tag_type));
+  expect(tag_type == close);
+  expect(cs_equal_streams(t->tag_name, &tmp));
   return TRUE;
 }
 
