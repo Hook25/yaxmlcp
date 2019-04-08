@@ -94,6 +94,8 @@ res_t xt_work_with_tag(xml_tree_t *t, char_stream_t *s){
   expect(cs_equal_streams(t->tag_name, &tmp));
   //we found the correct tag
   do{
+    has_to_reset = FALSE;
+    one_ok = FALSE;
     for(int i = 0; i<t->children_count; i++){
       ordered = xt_parse_xml_into_tree((t->children + i), s);
       if(!ordered){
