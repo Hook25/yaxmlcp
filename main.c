@@ -84,6 +84,23 @@ res_t test_equal_streams(){
     return TRUE;
 }
 
+res_t test_parse_xml(){
+    xml_tree_t t[2];
+    char *buffer = (char*)"<a>123</a>";
+    char *a = (char*)"a";
+    char_stream_t a_s;
+    build_from_buffer(&a_s, a,1);
+    char_stream_t s;
+    build_from_buffer(&s, buffer, 10);
+    char_stream_t v_a_s; //result
+    t[0].children_count = 1;
+    t[0].tag_name = &a_s;
+    t[0].children = &t[1];
+    t[1].tag_value = &v_a_s;
+    parse_xml_into_tree(t, &s);
+    return TRUE;
+}
+
 int main(){
     res_t header_test_result = test_header();
     if(!header_test_result){

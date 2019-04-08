@@ -25,7 +25,7 @@ res_t get_char(char_stream_t *_s, char *c);
 res_t set_char(char_stream_t *_s, char c);
 res_t advance(char_stream_t *_s);
 res_t reset(char_stream_t *_s);
-res_t build_from_buffer(char_stream_t *_s, char *buffer, unsigned int buffer_size);
+res_t build_from_buffer(char_stream_t *_s, char *buffer, unsigned int str_len);
 res_t bounded_skip(char_stream_t *s, char_stream_t from, char_stream_t to, bool_t _skip_spaces);
 res_t simple_skip(char_stream_t *s, char_stream_t to_skip, bool_t _skip_spaces);
 res_t skip_spaces(char_stream_t *_s);

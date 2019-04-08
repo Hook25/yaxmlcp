@@ -73,29 +73,56 @@ bool_t is_close_tag(char_stream_t *s){
   return TRUE; 
 }
 
-bool_t is_tag_node(xml_tree_t *t){
-  return t->tag_name != FALSE;
+bool_t is_value_node(xml_tree_t *t){
+  return t->tag_value != FALSE;
 }
 
-res_t parse_xml_into_tree(xml_tree_t *tree, char_stream_t *s){
-  char_stream_t tag_or_value;
-  tag_type_t t = none;
-  backup_t bk = backup_stream(s);
-  bool_t ok = TRUE;
-  if(is_tag_node(tree)){
-    ok &= get_tag_inplace(s,&tag_or_value, &t);
-    if(t != self_conclusive){
-      if(equal_streams(tree->tag_name, &tag_or_value)){ //they are the same, we gucci
-        unsigned int i;
-        for(i = 0; i<tree->children_count;){
-          if(parse_xml_into_tree(tree->children + i, s)){
-            i = 0;
-          }else{
-            i++;
-          }
-        }
+bool_t is_valid_node(xml_tree_t *t){
+  expect(t);
+  expect(t->tag_name || t->tag_value);
+  return TRUE;
+}
+
+res_t work_with_tag(xml_tree_t *t, char_stream_t *s){
+  char_stream_t tmp;
+  tag_type_t tag_type;
+  bool_t has_to_reset = FALSE; //if tags are ordered, this serves no purpose
+  bool_t one_ok = FALSE;
+  bool_t ordered;
+  expect(get_tag_inplace(s, &tmp, &tag_type));
+  expect(equal_streams(t->tag_name, &tmp));
+  //we found the correct tag
+  do{
+    for(int i = 0; i<t->children_count; i++){
+      ordered = parse_xml_into_tree(t->children[i], s);
+      if(!ordered){
+        has_to_reset = TRUE;
+      }else{
+        one_ok = TRUE;
       }
     }
+  }while(has_to_reset && one_ok);
+  return TRUE;
+}
+
+// |->| is where we are
+res_t parse_xml_into_tree(xml_tree_t *t, char_stream_t *s){
+  expect(is_valid_node(t));
+  if(is_value_node(t)){ //<tag>|->|value</tag>
+    if(is_open_tag(s)){ //enum <tag/>
+      char c;
+      tag_type_t tag_type = none;
+      get_tag_inplace(s, t->tag_value,&tag_type);
+      expect(tag_type == self_conclusive); //if it is not self conclusive we are in the wrong place
+      expect(trim_end_spaces(t->tag_value)); //the / MUST be last char b4 >
+      expect(char_at(t->tag_value, -1, &c));
+      expect(c == '/');
+      t->tag_value->size-=1; //remove the / and we gucci
+    }else{
+      expect(get_value_inplace(s, t->tag_value));
+    }
+  }else{ //|->|<tag>...</tag>
+    expect(work_with_tag(t, s));
   }
   return TRUE;
 }

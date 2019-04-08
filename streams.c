@@ -31,10 +31,10 @@ bool_t end_of(char_stream_t *_s){
   return _s->position == _s->size;
 }
 
-res_t build_from_buffer(char_stream_t *_s, char *buffer, unsigned int buffer_size){
+res_t build_from_buffer(char_stream_t *_s, char *buffer, unsigned int str_len){
  expect(_s && buffer);
  _s->buffer = buffer;
- _s->size = buffer_size;
+ _s->size = str_len;
  reset(_s);
  return TRUE;
 }
