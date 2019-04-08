@@ -6,7 +6,7 @@ typedef struct xml_tree_tag{
     char_stream_t *tag_value;
     char_stream_t *tag_name;
     unsigned int children_count;
-    struct xml_tree_tag **children; 
+    struct xml_tree_tag *children; 
 } xml_tree_t;
 
 typedef enum tag_type_tag{

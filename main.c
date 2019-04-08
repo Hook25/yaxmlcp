@@ -85,19 +85,24 @@ res_t test_equal_streams(){
 }
 
 res_t test_parse_xml(){
-    xml_tree_t t[2];
-    char *buffer = (char*)"<a>123</a>";
-    char *a = (char*)"a";
-    char_stream_t a_s;
-    build_from_buffer(&a_s, a,1);
+    xml_tree_t root_tag = {0};
+    xml_tree_t output_tree = {0};
+    char_stream_t root_tag_stream;
+    char_stream_t output;
     char_stream_t s;
-    build_from_buffer(&s, buffer, 10);
-    char_stream_t v_a_s; //result
-    t[0].children_count = 1;
-    t[0].tag_name = &a_s;
-    t[0].children = &t[1];
-    t[1].tag_value = &v_a_s;
-    parse_xml_into_tree(t, &s);
+    char *buffer = strdup("<a>123</a>");
+    char *expected_result = "123";
+    char *a = (char*)"a";
+    expect(build_from_buffer(&root_tag_stream, a, 1));
+    expect(build_from_buffer(&s, buffer, 10));
+    root_tag.tag_name = &root_tag_stream;
+    root_tag.children_count = 1;
+    output_tree.tag_value = &output;
+    root_tag.children = &output_tree;
+    expect(parse_xml_into_tree(&root_tag, &s));
+    nullterminate(&output);
+    expect(strcmp(output.buffer, expected_result) == 0);
+    free(buffer);
     return TRUE;
 }
 
@@ -124,7 +129,11 @@ int main(){
     }
     res_t equal_streams_result = test_equal_streams();
     if(!equal_streams_result){
-        printf("Failed equal streams");
+        printf("Failed equal streams\n");
+    }
+    res_t parse_xml_result = test_parse_xml();
+    if(!parse_xml_result){
+        printf("Failed to parse xml\n");
     }
     return 0;
 }

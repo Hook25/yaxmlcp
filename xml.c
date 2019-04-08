@@ -74,7 +74,7 @@ bool_t is_close_tag(char_stream_t *s){
 }
 
 bool_t is_value_node(xml_tree_t *t){
-  return t->tag_value != FALSE;
+  return !!t->tag_value;
 }
 
 bool_t is_valid_node(xml_tree_t *t){
@@ -94,7 +94,7 @@ res_t work_with_tag(xml_tree_t *t, char_stream_t *s){
   //we found the correct tag
   do{
     for(int i = 0; i<t->children_count; i++){
-      ordered = parse_xml_into_tree(t->children[i], s);
+      ordered = parse_xml_into_tree((t->children + i), s);
       if(!ordered){
         has_to_reset = TRUE;
       }else{

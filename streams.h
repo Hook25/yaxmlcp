@@ -7,7 +7,7 @@
 #define LOG_EXPECT FALSE
 #if LOG_EXPECT
 #include<stdio.h>
-#define expect( x ) do{ if (!( x )){ printf("Expectation not met at %d of file %s\n", __LINE__, __FILE__); return FALSE; }}while(0)
+#define expect( x ) do{ if (!( x )){ printf("Expectation not met at %d of file %s, func %s\n", __LINE__, __FILE__, __func__); return FALSE; }}while(0)
 #else
 #define expect( x ) do{ if(!( x )){ return FALSE; } } while(0)
 #endif
