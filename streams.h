@@ -21,25 +21,25 @@ typedef struct char_stream_token {
   unsigned int position;
 } char_stream_t;
 
-res_t get_char(char_stream_t *_s, char *c);
-res_t set_char(char_stream_t *_s, char c);
-res_t advance(char_stream_t *_s);
-res_t reset(char_stream_t *_s);
-res_t build_from_buffer(char_stream_t *_s, char *buffer, unsigned int str_len);
-res_t bounded_skip(char_stream_t *s, char_stream_t from, char_stream_t to, bool_t _skip_spaces);
-res_t simple_skip(char_stream_t *s, char_stream_t to_skip, bool_t _skip_spaces);
-res_t skip_spaces(char_stream_t *_s);
-res_t recover_stream(char_stream_t *s, backup_t back);
-res_t bounded_get_inplace(char_stream_t *s, char_stream_t *output, char_stream_t start, char_stream_t end);
-res_t nullterminate(char_stream_t *s);
-res_t char_at(char_stream_t *s, long int index, char *result);
-res_t trim_end_spaces(char_stream_t *s);
+res_t cs_get_char(char_stream_t *_s, char *c);
+res_t cs_set_char(char_stream_t *_s, char c);
+res_t cs_advance(char_stream_t *_s);
+res_t cs_reset(char_stream_t *_s);
+res_t cs_build_from_buffer(char_stream_t *_s, char *buffer, unsigned int str_len);
+res_t cs_bounded_skip(char_stream_t *s, char_stream_t from, char_stream_t to, bool_t _skip_spaces);
+res_t cs_simple_skip(char_stream_t *s, char_stream_t to_skip, bool_t _skip_spaces);
+res_t cs_skip_spaces(char_stream_t *_s);
+res_t cs_recover_stream(char_stream_t *s, backup_t back);
+res_t cs_bounded_get_inplace(char_stream_t *s, char_stream_t *output, char_stream_t start, char_stream_t end);
+res_t cs_nullterminate(char_stream_t *s);
+res_t cs_char_at(char_stream_t *s, long int index, char *result);
+res_t cs_trim_end_spaces(char_stream_t *s);
 
-bool_t equal_streams(char_stream_t *f, char_stream_t *s);
-bool_t end_of(char_stream_t *_s);
-bool_t valid_position(char_stream_t *_s);
-bool_t is_sequence(char_stream_t *s, char_stream_t *sequence, bool_t _skip_spaces);
+bool_t cs_equal_streams(char_stream_t *f, char_stream_t *s);
+bool_t cs_end_of(char_stream_t *_s);
+bool_t cs_valid_position(char_stream_t *_s);
+bool_t cs_is_sequence(char_stream_t *s, char_stream_t *sequence, bool_t _skip_spaces);
 
-backup_t backup_stream(char_stream_t *s);
+backup_t cs_backup_stream(char_stream_t *s);
 
 #endif

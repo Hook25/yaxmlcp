@@ -7,13 +7,13 @@
 res_t test_header(){
     char *c = "<?-- prova 123 --?>";
     char_stream_t s;
-    res_t build =  build_from_buffer(&s, c, 19);
+    res_t build =  cs_build_from_buffer(&s, c, 19);
     expect(build);
-    res_t is_h = is_header(s);
+    res_t is_h = xs_is_header(s);
     expect(is_h);
-    res_t skipped = skip_header(&s);
+    res_t skipped = xs_skip_header(&s);
     expect(skipped);
-    expect(end_of(&s));
+    expect(cs_end_of(&s));
     return TRUE;
 }
 
@@ -22,8 +22,8 @@ res_t test_get_tag(){
     char_stream_t s;
     char_stream_t o_stream;
     tag_type_t tt;
-    expect(build_from_buffer(&s, c, 6));
-    expect(get_tag_inplace(&s, &o_stream, &tt));
+    expect(cs_build_from_buffer(&s, c, 6));
+    expect(xs_get_tag_inplace(&s, &o_stream, &tt));
     expect(tt == open);
     return TRUE;
 }
@@ -31,20 +31,20 @@ res_t test_get_tag(){
 res_t test_is_open_close_tag(){
     char *c = "<a>";
     char_stream_t s;
-    expect(build_from_buffer(&s, c, 3));
-    expect(is_open_tag(&s));
+    expect(cs_build_from_buffer(&s, c, 3));
+    expect(xs_is_open_tag(&s));
     char *k = "</a>";
-    expect(build_from_buffer(&s, k, 3));
-    expect(is_close_tag(&s));
+    expect(cs_build_from_buffer(&s, k, 3));
+    expect(xs_is_close_tag(&s));
     return TRUE;
 }
 
 res_t test_get_value(){
     char *c = "123.123123";
     char_stream_t s;
-    expect(build_from_buffer(&s, c, 15));
+    expect(cs_build_from_buffer(&s, c, 15));
     char_stream_t out;
-    expect(get_value_inplace(&s, &out));
+    expect(xs_get_value_inplace(&s, &out));
 }
 
 void print_char_stream_t(char_stream_t *c){
@@ -58,15 +58,15 @@ res_t test_parse_open_val_close(){
     char_stream_t value_s;
     char_stream_t tag_c_s;
     tag_type_t tt;
-    expect(build_from_buffer(&s, c, 13));
-    expect(get_tag_inplace(&s, &tag_s, &tt));
+    expect(cs_build_from_buffer(&s, c, 13));
+    expect(xs_get_tag_inplace(&s, &tag_s, &tt));
     expect(tt == open);
-    expect(get_value_inplace(&s, &value_s));
-    expect(get_tag_inplace(&s, &tag_c_s, &tt));
+    expect(xs_get_value_inplace(&s, &value_s));
+    expect(xs_get_tag_inplace(&s, &tag_c_s, &tt));
     expect(tt == close);
-    nullterminate(&tag_s);
-    nullterminate(&value_s);
-    nullterminate(&tag_c_s);
+    cs_nullterminate(&tag_s);
+    cs_nullterminate(&value_s);
+    cs_nullterminate(&tag_c_s);
     expect(strcmp("a", tag_s.buffer) == 0);
     expect(strcmp("prova", value_s.buffer) == 0);
     expect(strcmp("a", tag_c_s.buffer) == 0);
@@ -78,9 +78,9 @@ res_t test_equal_streams(){
     char *tmp = "Lorem";
     char_stream_t s;
     char_stream_t f;
-    build_from_buffer(&s,tmp,5);
-    build_from_buffer(&f,tmp,5);
-    expect(equal_streams(&f,&s));
+    cs_build_from_buffer(&s,tmp,5);
+    cs_build_from_buffer(&f,tmp,5);
+    expect(cs_equal_streams(&f,&s));
     return TRUE;
 }
 
@@ -93,14 +93,14 @@ res_t test_parse_xml(){
     char *buffer = strdup("<a>123</a>");
     char *expected_result = "123";
     char *a = (char*)"a";
-    expect(build_from_buffer(&root_tag_stream, a, 1));
-    expect(build_from_buffer(&s, buffer, 10));
+    expect(cs_build_from_buffer(&root_tag_stream, a, 1));
+    expect(cs_build_from_buffer(&s, buffer, 10));
     root_tag.tag_name = &root_tag_stream;
     root_tag.children_count = 1;
     output_tree.tag_value = &output;
     root_tag.children = &output_tree;
-    expect(parse_xml_into_tree(&root_tag, &s));
-    nullterminate(&output);
+    expect(xt_parse_xml_into_tree(&root_tag, &s));
+    cs_nullterminate(&output);
     expect(strcmp(output.buffer, expected_result) == 0);
     free(buffer);
     return TRUE;
